@@ -12,10 +12,10 @@ function setup() {
 		s = 50;
 	}
 	gridType = int(prompt("The grid type (3:isometric, 4:square): "));
-	if (isNaN(gridType)){
+	if (isNaN(gridType) || gridType<3 || gridType>4){
 		gridType = 4;
 	}
-	maxM = int(prompt("Number of concentric circles: "));
+	maxM = abs(int(prompt("Number of concentric circles: ")));
 	if (isNaN(maxM)){
 		maxM = 20;
 	}
@@ -33,7 +33,7 @@ function draw() {
 	background(250,250,250);
 	if (gridType===3){
 	    isoGrid();    
-	} else {
+	} else if (gridType===4) {
 	    squareGrid();
 	}
 
