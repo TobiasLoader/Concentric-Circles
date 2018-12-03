@@ -3,6 +3,7 @@
 var s;
 var gridType;
 var maxM;
+var c;
 
 function setup() {
 	angleMode(DEGREES);
@@ -11,10 +12,15 @@ function setup() {
 		s = 50;
 	}
 	gridType = int(prompt("The grid type (3:isometric, 4:square): "));
+	if (isNaN(gridType)){
+		gridType = 4;
+	}
 	maxM = int(prompt("Number of concentric circles: "));
 	if (isNaN(maxM)){
-		maxM = 10
+		maxM = 20;
 	}
+	c = [];
+	initCircles();
   W = window.innerWidth;
 	H = window.innerHeight;
   canvas = createCanvas(W, H);
@@ -37,7 +43,6 @@ function draw() {
 	
 	strokeWeight(2);
 	drawConcentric();
-
 }
 
 
@@ -82,25 +87,73 @@ function isoGrid(){
         line(-W/2,y-W*sin(60),W/2,y+W*sin(60));
         line(-W/2,y+W*sin(60),W/2,y-W*sin(60));
     }
-};
-function drawConcentric(){
-    if (gridType===3){
-        for (var i=0; i<maxM; i+=1){
-            drawCircle(sqrt(i));
-/*
-            drawCircle(sqrt(4*i+1));
-            drawCircle(sqrt(4*i-1));
-*/
+}
+function primeFactorisation(n){
+	var i = 2;
+	var factors = [];
+	while (i*i <= n){
+		if (n%i){
+			i+=1;
+		} else {
+			n = Math.floor(n/i);
+			factors.push(i);
+		}
+	}
+	if (n>1){
+		factors.push(n);
+	}
+	return factors;
+}
+
+function prime_factors_powers(factors){
+    var new_factors = [];
+    var fNum = 0;
+    while (fNum < factors.length){
+        var current = factors[fNum];
+        var n = 0;
+        var elem = 0;
+        while (elem < factors.length){
+            if (factors[elem] === current){
+                n += 1;
+            }
+            elem += 1;
         }
-    } else {
-        for (var i=0; i<maxM; i+=1){
-            drawCircle(sqrt(i));
-/*
-            drawCircle(sqrt(4*i+1));
-            drawCircle(sqrt(4*i-1));
-*/
+        new_factors.push([current, n]);
+        elem = 0;
+        while (elem < factors.length){
+            if (factors[elem] === current){
+                factors.splice(elem,1);
+            } else {
+                elem += 1;
+            }
         }
     }
+    return new_factors;
+}
+
+function parse_Q_primes_odd_exponent(prime_powers){
+  for (var i=0; i<prime_powers.length; i+=1){
+      if (((prime_powers[i][0]+1) % gridType)===0){
+          if (prime_powers[i][1] % 2){
+              return false;
+          }
+      }
+  }
+  return true;
+}
+
+function initCircles(){
+	for (var m=0; c.length<maxM; m+=1){
+		if (parse_Q_primes_odd_exponent(prime_factors_powers(primeFactorisation(m)))){
+			c.push(m);
+		}
+	}
+	print(c);
+}
+function drawConcentric(){
+    for (var i=0; i<maxM; i+=1){
+        drawCircle(sqrt(c[i]));
+    }	
 };
 
 
