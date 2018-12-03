@@ -163,14 +163,8 @@ window.onresize = function() {
   H = windowHeight
 };
 
-/*
 mouseClicked = function(){
-	if (gridType === 4){
-		gridType = 3;
-	} else {
-		gridType = 4;
-	}
+	alert(c);
 }
-*/
 
 // Other functions down here
