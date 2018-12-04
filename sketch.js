@@ -79,7 +79,7 @@ function printButton(){
 	rect(-W/2+20,-H/2+20,60,60);
 	textSize(45);
 	fill(80);
-	text("𝒊",-W/2+50,-H/2+53);
+	text("𝒊",-W/2+50,-H/2+50);
 }
 
 function drawPoint(x,y){
