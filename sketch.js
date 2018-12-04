@@ -4,6 +4,10 @@ var s;
 var gridType;
 var maxM;
 var c;
+var d;
+var cursorType;
+var hoverType;
+var cC;
 
 function setup() {
 	angleMode(DEGREES);
@@ -20,17 +24,17 @@ function setup() {
 		maxM = 20;
 	}
 	c = [];
+	d = [0,0];
 	initCircles();
   W = window.innerWidth;
 	H = window.innerHeight;
   canvas = createCanvas(W, H);
 }
 
-
 function draw() {
-	// draw in here
+	textAlign(CENTER,CENTER);
 	translate(W/2,H/2);
-	background(250,250,250);
+	background(247,247,247);
 	if (gridType===3){
 	    isoGrid();    
 	} else if (gridType===4) {
@@ -41,53 +45,86 @@ function draw() {
 	strokeWeight(6);
 	drawPoint(0,0);
 	
-	strokeWeight(2);
-	drawConcentric();
+	strokeWeight(1);
+	drawConcentric();	
+	
+	printButton();
+	cursorSetup();
+}
+function hoverConditions(){
+	if (mouseX>20 && mouseX<80 && mouseY>20 && mouseY<80){
+		return ["button","print"];
+	}
+	return [""];
+}
+function cursorConditions(hoverType){
+	if (hoverType === "button"){
+		cursorType = "pointer";
+	} else {
+		cursorType = "grab";
+	}
+}
+function clickConditions(hoverType){
+	if (hoverType === "print"){
+		alert("The first "+maxM+" m's:\n"+c);
+	}
+}
+function cursorSetup(){
+	cursorConditions(hoverConditions()[0]);
+	cursor(cursorType);
+}
+function printButton(){
+	fill(255,255,255);
+	stroke(130);
+	rect(-W/2+20,-H/2+20,60,60);
+	textSize(45);
+	fill(80);
+	text("𝒊",-W/2+50,-H/2+53);
 }
 
-
-
 function drawPoint(x,y){
-    point(x*s,y*s);  
-};
+    point(x*s + d[0],y*s + d[1]);  
+}
 function drawCircle(r){
     noFill();
-    ellipse(0,0,2*r*s,2*r*s);    
-};
+    ellipse(d[0],d[1],2*r*s,2*r*s);    
+}
 function squareGrid(){
     strokeWeight(1);
     stroke(156,156,156,100);
-    for (var x=s; x<W/2; x+=s){
+    for (var x=d[0]+s; x<W/2; x+=s){
         line(x,-H/2,x,H/2);
     }
-    for (var x=0; x>-W/2; x-=s){
+    for (var x=d[0]; x>-W/2; x-=s){
         line(x,-H/2,x,H/2);
     }
-    for (var y=s; y<H/2; y+=s){
+    for (var y=d[1]+s; y<H/2; y+=s){
         line(-W/2,y,W/2,y);
     }
-    for (var y=0; y>-H/2; y-=s){
+    for (var y=d[1]; y>-H/2; y-=s){
         line(-W/2,y,W/2,y);
-    }
-};
-function isoGrid(){
-    strokeWeight(1);
-    stroke(156,156,156,100);
-    for (var y=0; y<H/2; y+=s*cos(30)){
-        line(-W/2,y,W/2,y);
-    }
-    for (var y=0; y>-H/2; y-=s*cos(30)){
-        line(-W/2,y,W/2,y);
-    }
-    for (var y=0; y>-(H+W)/4-(H+W)/2*sqrt(2); y-=(s*2)*cos(30)){
-        line(-W/2,y-W*sin(60),W/2,y+W*sin(60));
-        line(-W/2,y+W*sin(60),W/2,y-W*sin(60));
-    }
-    for (var y=0; y<(H+W)/4+(H+W)/2*sqrt(2); y+=(s*2)*cos(30)){
-        line(-W/2,y-W*sin(60),W/2,y+W*sin(60));
-        line(-W/2,y+W*sin(60),W/2,y-W*sin(60));
     }
 }
+function isoGrid(){
+		var trigEqu = [s*cos(30),W*sin(60),d[0]*tan(60),(H+W)/2];
+    strokeWeight(1);
+    stroke(156,156,156,100);
+    for (var y=d[1]; y<H/2; y+=trigEqu[0]){
+        line(-W/2,y,W/2,y);
+    }
+    for (var y=d[1]-trigEqu[0]; y>-H/2; y-=trigEqu[0]){
+        line(-W/2,y,W/2,y);
+    }
+    for (var y=d[1]-2*trigEqu[0]; y>-trigEqu[3]/2-trigEqu[3]*sqrt(2); y-=2*trigEqu[0]){
+        line(-W/2,y-trigEqu[1]-trigEqu[2],W/2,y+trigEqu[1]-trigEqu[2]);
+        line(-W/2,y+trigEqu[1]+trigEqu[2],W/2,y-trigEqu[1]+trigEqu[2]);
+    }
+    for (var y=d[1]; y<trigEqu[3]/2+trigEqu[3]*sqrt(2); y+=2*trigEqu[0]){
+        line(-W/2,y-trigEqu[1]-trigEqu[2],W/2,y+trigEqu[1]-trigEqu[2]);
+        line(-W/2,y+trigEqu[1]+trigEqu[2],W/2,y-trigEqu[1]+trigEqu[2]);
+    }
+}
+
 function primeFactorisation(n){
 	var i = 2;
 	var factors = [];
@@ -104,7 +141,6 @@ function primeFactorisation(n){
 	}
 	return factors;
 }
-
 function prime_factors_powers(factors){
     var new_factors = [];
     var fNum = 0;
@@ -130,7 +166,6 @@ function prime_factors_powers(factors){
     }
     return new_factors;
 }
-
 function parse_Q_primes_odd_exponent(prime_powers){
   for (var i=0; i<prime_powers.length; i+=1){
       if (((prime_powers[i][0]+1) % gridType)===0){
@@ -154,17 +189,21 @@ function drawConcentric(){
     for (var i=0; i<maxM; i+=1){
         drawCircle(sqrt(c[i]));
     }	
-};
+}
 
-
+mouseDragged = function(){
+	d[0] += mouseX-pmouseX;
+	d[1] += mouseY-pmouseY;
+	cursorType = "Grabbing";
+}
 window.onresize = function() {
   resizeCanvas(windowWidth, windowHeight);
   W = windowWidth;
   H = windowHeight
-};
+}
 
 mouseClicked = function(){
-	alert(c);
+	clickConditions(hoverConditions()[1]);
 }
 
 // Other functions down here
